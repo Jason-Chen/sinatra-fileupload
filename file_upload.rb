@@ -1,12 +1,17 @@
-# encoding: utf-8
-
 require 'sinatra/base'
 require 'slim'
+require 'yaml'
+
+CREDENTIAL_FILE   = './credentials.yml'
+AUTHORIZED_USERS  = YAML.load(File.open(CREDENTIAL_FILE))
 
 class FileUpload < Sinatra::Base
+  use Rack::Auth::Basic do |username, password|
+    AUTHORIZED_USERS.include?([username, password])
+  end
+
   configure do
     enable :static
-    enable :sessions
 
     set :views, File.join(File.dirname(__FILE__), 'views')
     set :public_folder, File.join(File.dirname(__FILE__), 'public')
